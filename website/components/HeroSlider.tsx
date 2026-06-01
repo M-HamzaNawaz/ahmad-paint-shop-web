@@ -1,29 +1,30 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRightIcon } from "./Icons";
+import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowRightIcon } from './Icons';
 
 const slides = [
   {
-    src: "/slider/01-store.png",
-    title: "Genuine Kaizen & Nippon",
-    subtitle: "Authorised retailer — every product, every shade, all in one shop.",
+    src: '/slider/01-store.png',
+    title: 'Genuine Kaizen & Nippon',
+    subtitle:
+      'Authorised retailer — every product, every shade, all in one shop.',
   },
   {
-    src: "/slider/02-family.png",
-    title: "Make every room yours",
-    subtitle: "Premium emulsions for a fresh look that lasts.",
+    src: '/slider/02-family.png',
+    title: 'Make every room yours',
+    subtitle: 'Premium emulsions for a fresh look that lasts.',
   },
   {
-    src: "/slider/03-professional.png",
-    title: "Trusted by professionals",
-    subtitle: "From small touch-ups to large projects — built for every job.",
+    src: '/slider/03-professional.png',
+    title: 'Trusted by professionals',
+    subtitle: 'From small touch-ups to large projects — built for every job.',
   },
   {
-    src: "/slider/04-community.png",
-    title: "Colour for every space",
-    subtitle: "Quality paints for homes, shops and creative projects.",
+    src: '/slider/04-community.png',
+    title: 'Colour for every space',
+    subtitle: 'Quality paints for homes, shops and creative projects.',
   },
 ];
 
@@ -39,7 +40,7 @@ export function HeroSlider() {
     if (!c) return;
     const target = c.children[index] as HTMLElement | undefined;
     if (!target) return;
-    c.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+    c.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
   }, []);
 
   // Auto-advance — pauses on hover (desktop) via pausedRef.
@@ -93,7 +94,7 @@ export function HeroSlider() {
           {slides.map((slide, i) => (
             <div
               key={slide.src}
-              className="relative aspect-[16/9] w-full shrink-0 snap-center sm:aspect-[21/10] lg:aspect-[21/9]"
+              className="relative aspect-video w-full shrink-0 snap-center sm:aspect-21/10 lg:aspect-21/9"
             >
               <Image
                 src={slide.src}
@@ -146,8 +147,8 @@ export function HeroSlider() {
               aria-current={i === active}
               className={`h-2 rounded-full bg-white transition-all duration-300 ${
                 i === active
-                  ? "w-8 opacity-100"
-                  : "w-2 opacity-60 hover:opacity-90"
+                  ? 'w-8 opacity-100'
+                  : 'w-2 opacity-60 hover:opacity-90'
               }`}
             />
           ))}
