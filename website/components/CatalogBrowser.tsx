@@ -3,17 +3,25 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { Brand, Product } from "@/lib/types";
+import { Dropdown, type DropdownOption } from "./Dropdown";
 import { ProductCard } from "./ProductCard";
 import { SearchIcon } from "./Icons";
 
 type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 type BrandFilter = "all" | Brand;
 
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+const SORT_OPTIONS: DropdownOption<SortKey>[] = [
   { value: "featured", label: "Sort: Featured" },
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
   { value: "name", label: "Name: A to Z" },
+];
+
+const BRAND_OPTIONS: DropdownOption<BrandFilter>[] = [
+  { value: "all", label: "All Brands" },
+  { value: "Neo", label: "NEO (Kaizen)" },
+  { value: "Zen", label: "ZEN (Kaizen)" },
+  { value: "Nippon", label: "Nippon" },
 ];
 
 export function CatalogBrowser({
@@ -82,31 +90,22 @@ export function CatalogBrowser({
         </div>
 
         {showBrandFilter ? (
-          <select
+          <Dropdown
             value={brand}
-            onChange={(e) => setBrand(e.target.value as BrandFilter)}
-            aria-label="Filter by brand"
-            className="rounded-full border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium outline-none transition focus:border-orange-500"
-          >
-            <option value="all">All Brands</option>
-            <option value="Neo">NEO (Kaizen)</option>
-            <option value="Zen">ZEN (Kaizen)</option>
-            <option value="Nippon">Nippon</option>
-          </select>
+            onChange={setBrand}
+            options={BRAND_OPTIONS}
+            ariaLabel="Filter by brand"
+            className="sm:w-44"
+          />
         ) : null}
 
-        <select
+        <Dropdown
           value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-          aria-label="Sort products"
-          className="rounded-full border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium outline-none transition focus:border-orange-500"
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          onChange={setSort}
+          options={SORT_OPTIONS}
+          ariaLabel="Sort products"
+          className="sm:w-56"
+        />
       </div>
 
       <p className="mt-5 text-sm text-zinc-500">
