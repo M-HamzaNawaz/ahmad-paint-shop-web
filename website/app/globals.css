@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Segoe UI", Arial, Helvetica, sans-serif;
+  --font-mono: Consolas, "Courier New", monospace;
+
+  --color-primary: #ea580c;
+  --color-primary-dark: #c2410c;
+  --color-primary-light: #fff7ed;
+  --color-whatsapp: #25d366;
+  --color-whatsapp-dark: #1da851;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #ffffff;
+  color: #18181b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #d4d4d8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a1a1aa;
+}
+
+/* Hide scrollbar entirely — used by horizontally-scrolling rows (the
+   category nav and the hero slider) where a scrollbar would be ugly. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Page enter — fires on every route change (re-mounted via PageTransition).
+   Pure opacity (no transform) to keep text crisp on mobile. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-enter {
+    animation: page-enter 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 60ms;
+  }
+}
+
+/* Edge fade for horizontally-scrolling rows (e.g. the category nav).
+   Cues the user that content extends beyond the visible edge.
+   Only applied below `lg` — on wide screens all categories fit, so the
+   mask would just clip the first/last pill for no reason. */
+@media (max-width: 1023px) {
+  .scroll-fade-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 32px,
+      black calc(100% - 32px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 32px,
+      black calc(100% - 32px),
+      transparent 100%
+    );
+  }
+}
+
+/* Flip card — front/back faces, flips on desktop hover.
+   Uses CSS grid stacking so both faces occupy the same cell and the
+   wrapper takes the full height of its grid cell (cards in a row all
+   stretch to match the tallest one).
+   `@media (hover: hover)` prevents touch devices from a stuck-flip on tap. */
+.flip-card {
+  perspective: 1000px;
+  height: 100%;
+}
+.flip-card-inner {
+  display: grid;
+  grid-template-areas: "stack";
+  height: 100%;
+  transition: transform 600ms ease-out;
+  transform-style: preserve-3d;
+}
+.flip-card-face {
+  grid-area: stack;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+/* On touch devices the flip never fires, so the back face would just
+   waste vertical space (its description makes it taller than the front,
+   stretching the card and leaving a big empty gap on the front). Skip
+   rendering it entirely there. */
+@media (hover: none) {
+  .flip-card-back {
+    display: none;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Scroll-driven reveal — sections fade & rise as they enter the viewport.
+   Gated to >= 768px because the translateY animation causes visible
+   subpixel/blur glitches on small mobile screens during scroll.
+   Falls back to no-op on browsers without `animation-timeline: view()`. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
+/* Animated hero background — slow, continuous gradient drift.
+   Pairs with Tailwind's `bg-linear-to-br from-... via-... to-...`
+   gradient; we just enlarge the background and shift its position. */
+@keyframes hero-shift {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-animated {
+    background-size: 200% 200%;
+    animation: hero-shift 18s ease-in-out infinite;
+  }
+}

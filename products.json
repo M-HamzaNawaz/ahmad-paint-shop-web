@@ -1,0 +1,395 @@
+{
+  "_comment": "Seed data for Ahmad Paint Shop website. Extracted from Kaizen Paint Consumer Price List W.E.F 20-April-2026. All prices in PKR. 'total_price' is the customer-facing selling price (Retail Price + 18% Sales Tax).",
+  "shop": {
+    "name": "Ahmad Paint Shop",
+    "supplier_brand": "Kaizen Paint (PVT) Limited",
+    "admin_whatsapp": "923468803287",
+    "admin_whatsapp_display": "0346-8803287"
+  },
+  "price_list_effective_date": "2026-04-20",
+  "currency": "PKR",
+  "tax_rate": 0.18,
+  "categories": [
+    { "name": "Interior Emulsions", "slug": "interior-emulsions", "sort_order": 1 },
+    { "name": "Exterior Emulsions", "slug": "exterior-emulsions", "sort_order": 2 },
+    { "name": "Enamels", "slug": "enamels", "sort_order": 3 },
+    { "name": "Putty", "slug": "putty", "sort_order": 4 },
+    { "name": "Primers", "slug": "primers", "sort_order": 5 },
+    { "name": "Wood Care", "slug": "wood-care", "sort_order": 6 },
+    { "name": "Others", "slug": "others", "sort_order": 7 }
+  ],
+  "products": [
+    {
+      "sr_no": 1,
+      "name": "Neo Stain Guard",
+      "product_line": "N920",
+      "category": "Interior Emulsions",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "1 Ltr",   "retail_price": 1758.47,  "sales_tax": 316.53,  "total_price": 2075 },
+        { "pack_size": "4 Ltrs",  "retail_price": 6475.42,  "sales_tax": 1165.58, "total_price": 7641 },
+        { "pack_size": "16 Ltrs", "retail_price": 25461.86, "sales_tax": 4583.14, "total_price": 30045 }
+      ]
+    },
+    {
+      "sr_no": 2,
+      "name": "Neo Silk Water Matt",
+      "product_line": "N941",
+      "category": "Interior Emulsions",
+      "brand": "Neo",
+      "note": "Only available on K-Spectrum",
+      "variants": [
+        { "pack_size": "1 Ltr",   "retail_price": 1554.24,  "sales_tax": 279.76,  "total_price": 1834 },
+        { "pack_size": "4 Ltrs",  "retail_price": 5718.64,  "sales_tax": 1029.36, "total_price": 6748 },
+        { "pack_size": "16 Ltrs", "retail_price": 22167.80, "sales_tax": 3990.20, "total_price": 26158 }
+      ]
+    },
+    {
+      "sr_no": 3,
+      "name": "Neo Premium Interior Emulsion",
+      "product_line": "N930",
+      "category": "Interior Emulsions",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "1 Ltr",   "retail_price": 1207.63,  "sales_tax": 217.37,  "total_price": 1425 },
+        { "pack_size": "4 Ltrs",  "retail_price": 4420.34,  "sales_tax": 795.66,  "total_price": 5216 },
+        { "pack_size": "16 Ltrs", "retail_price": 17170.34, "sales_tax": 3090.66, "total_price": 20261 }
+      ]
+    },
+    {
+      "sr_no": 4,
+      "name": "Neo Interior Plastic Emulsion",
+      "product_line": "N949",
+      "category": "Interior Emulsions",
+      "brand": "Neo",
+      "note": "Available only in selective shades",
+      "variants": [
+        { "pack_size": "0.91 Ltrs",  "retail_price": 908.47,   "sales_tax": 163.53,  "total_price": 1072 },
+        { "pack_size": "3.64 Ltrs",  "retail_price": 3894.92,  "sales_tax": 701.08,  "total_price": 4596 },
+        { "pack_size": "14.56 Ltrs", "retail_price": 14382.20, "sales_tax": 2588.80, "total_price": 16971 }
+      ]
+    },
+    {
+      "sr_no": 5,
+      "name": "Zen Wall Care Interior Emulsion",
+      "product_line": "N950",
+      "category": "Interior Emulsions",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",   "retail_price": 671.19,  "sales_tax": 120.81,  "total_price": 792 },
+        { "pack_size": "3.64 Ltrs",  "retail_price": 2481.36, "sales_tax": 446.64,  "total_price": 2928 },
+        { "pack_size": "14.56 Ltrs", "retail_price": 9155.08, "sales_tax": 1647.92, "total_price": 10803 }
+      ]
+    },
+    {
+      "sr_no": 6,
+      "name": "Zen Interior Emulsion",
+      "product_line": "N914",
+      "category": "Interior Emulsions",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "1.5 Kgs", "retail_price": 571.19,  "sales_tax": 102.81,  "total_price": 674 },
+        { "pack_size": "6 Kgs",   "retail_price": 1941.53, "sales_tax": 349.47,  "total_price": 2291 },
+        { "pack_size": "24 Kgs",  "retail_price": 7396.61, "sales_tax": 1331.39, "total_price": 8728 }
+      ]
+    },
+    {
+      "sr_no": 7,
+      "name": "Neo Premium Exterior Emulsion",
+      "product_line": "N925",
+      "category": "Exterior Emulsions",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "1 Ltr",   "retail_price": 1450.85,  "sales_tax": 261.15,  "total_price": 1712 },
+        { "pack_size": "4 Ltrs",  "retail_price": 5335.59,  "sales_tax": 960.41,  "total_price": 6296 },
+        { "pack_size": "16 Ltrs", "retail_price": 20662.71, "sales_tax": 3719.29, "total_price": 24382 }
+      ]
+    },
+    {
+      "sr_no": 8,
+      "name": "Neo Power Guard",
+      "product_line": "N945",
+      "category": "Exterior Emulsions",
+      "brand": "Neo",
+      "note": "Available only in selective shades",
+      "variants": [
+        { "pack_size": "4 Ltrs",  "retail_price": 4166.95,  "sales_tax": 750.05,  "total_price": 4917 },
+        { "pack_size": "16 Ltrs", "retail_price": 15885.59, "sales_tax": 2859.41, "total_price": 18745 }
+      ]
+    },
+    {
+      "sr_no": 9,
+      "name": "Neo Premium Matt Enamel",
+      "product_line": "N312",
+      "category": "Enamels",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 1650.85, "sales_tax": 297.15,  "total_price": 1948 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 6048.31, "sales_tax": 1088.69, "total_price": 7137 }
+      ]
+    },
+    {
+      "sr_no": 10,
+      "name": "Neo Premium Gloss Metallic Finish",
+      "product_line": "N421",
+      "category": "Enamels",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 1169.49, "sales_tax": 210.51, "total_price": 1380 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 4220.34, "sales_tax": 759.66, "total_price": 4980 }
+      ]
+    },
+    {
+      "sr_no": 11,
+      "name": "Neo Super Premium Enamel",
+      "product_line": "N310",
+      "category": "Enamels",
+      "brand": "Neo",
+      "note": "Only available on K-Spectrum",
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 1301.69, "sales_tax": 234.31, "total_price": 1536 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 4835.59, "sales_tax": 870.41, "total_price": 5706 }
+      ]
+    },
+    {
+      "sr_no": 12,
+      "name": "Zen Gloss Enamel",
+      "product_line": "N311",
+      "category": "Enamels",
+      "brand": "Zen",
+      "note": "Standard shades",
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 1077.97, "sales_tax": 194.03, "total_price": 1272 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 4121.19, "sales_tax": 741.81, "total_price": 4863 }
+      ]
+    },
+    {
+      "sr_no": 12,
+      "name": "Zen Gloss Enamel - Special Shades",
+      "product_line": "N311",
+      "category": "Enamels",
+      "brand": "Zen",
+      "note": "Orange, Signal Red, New Signal Red, Signal Green, Golden Yellow",
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 1207.63, "sales_tax": 217.37, "total_price": 1425 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 4514.41, "sales_tax": 812.59, "total_price": 5327 }
+      ]
+    },
+    {
+      "sr_no": 13,
+      "name": "Neo Premium Sheesha Wall Putty",
+      "product_line": "N963",
+      "category": "Putty",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "20 Kgs", "retail_price": 6101.69, "sales_tax": 1098.31, "total_price": 7200 }
+      ]
+    },
+    {
+      "sr_no": 14,
+      "name": "Neo Premium Exterior Wall Putty",
+      "product_line": "N958",
+      "category": "Putty",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "20 Kgs", "retail_price": 7070.34, "sales_tax": 1272.66, "total_price": 8343 }
+      ]
+    },
+    {
+      "sr_no": 15,
+      "name": "Neo Premium Wall Putty",
+      "product_line": "N957",
+      "category": "Putty",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "20 Kgs", "retail_price": 6073.73, "sales_tax": 1093.27, "total_price": 7167 }
+      ]
+    },
+    {
+      "sr_no": 16,
+      "name": "Zen Wall Putty Plus",
+      "product_line": "N962",
+      "category": "Putty",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "5 Kgs",  "retail_price": 1235.59, "sales_tax": 222.41, "total_price": 1458 },
+        { "pack_size": "20 Kgs", "retail_price": 4340.68, "sales_tax": 781.32, "total_price": 5122 }
+      ]
+    },
+    {
+      "sr_no": 18,
+      "name": "Zen Putty",
+      "product_line": "N959-0088",
+      "category": "Putty",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "18 Kgs", "retail_price": 3739.83, "sales_tax": 673.17, "total_price": 4413 }
+      ]
+    },
+    {
+      "sr_no": 19,
+      "name": "Zen Putty (Fragrant & White Drummie)",
+      "product_line": "N959-0090",
+      "category": "Putty",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "18 Kgs", "retail_price": 3964.41, "sales_tax": 713.59, "total_price": 4678 }
+      ]
+    },
+    {
+      "sr_no": 20,
+      "name": "Neo Wall Primer (Oil)",
+      "product_line": "N515",
+      "category": "Primers",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltrs",  "retail_price": 1172.88,  "sales_tax": 211.12,  "total_price": 1384 },
+        { "pack_size": "3.64 Ltrs",  "retail_price": 4190.68,  "sales_tax": 754.32,  "total_price": 4945 },
+        { "pack_size": "14.56 Ltrs", "retail_price": 15721.19, "sales_tax": 2829.81, "total_price": 18551 }
+      ]
+    },
+    {
+      "sr_no": 21,
+      "name": "Neo Water Based Primer",
+      "product_line": "N915",
+      "category": "Primers",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "4 Ltrs",  "retail_price": 3114.41,  "sales_tax": 560.59,  "total_price": 3675 },
+        { "pack_size": "16 Ltrs", "retail_price": 11876.27, "sales_tax": 2137.73, "total_price": 14014 }
+      ]
+    },
+    {
+      "sr_no": 22,
+      "name": "Neo Red Oxide Primer",
+      "product_line": "N530",
+      "category": "Primers",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltrs", "retail_price": 838.14,  "sales_tax": 150.86, "total_price": 989 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 3080.51, "sales_tax": 554.49, "total_price": 3635 }
+      ]
+    },
+    {
+      "sr_no": 23,
+      "name": "ZEN WB Wall Primer & Sealer",
+      "product_line": "N915-0086",
+      "category": "Primers",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "3.64 Ltrs",  "retail_price": 1547.46, "sales_tax": 278.54, "total_price": 1826 },
+        { "pack_size": "14.56 Ltrs", "retail_price": 5444.07, "sales_tax": 979.93, "total_price": 6424 }
+      ]
+    },
+    {
+      "sr_no": 24,
+      "name": "Neo Wood Thinner",
+      "product_line": "N841",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 887.29,  "sales_tax": 159.71, "total_price": 1047 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 3188.98, "sales_tax": 574.02, "total_price": 3763 }
+      ]
+    },
+    {
+      "sr_no": 25,
+      "name": "Neo Premium Wood Sealer",
+      "product_line": "N015",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 1734.75, "sales_tax": 312.25,  "total_price": 2047 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 6577.12, "sales_tax": 1183.88, "total_price": 7761 }
+      ]
+    },
+    {
+      "sr_no": 26,
+      "name": "Neo Premium Wood Lacquer Matt",
+      "product_line": "N018-3333",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 2155.08, "sales_tax": 387.92,  "total_price": 2543 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 7746.61, "sales_tax": 1394.39, "total_price": 9141 }
+      ]
+    },
+    {
+      "sr_no": 27,
+      "name": "Neo Wood Lacquer Gloss",
+      "product_line": "N018-3332",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.91 Ltr",  "retail_price": 2155.08, "sales_tax": 387.92,  "total_price": 2543 },
+        { "pack_size": "3.64 Ltrs", "retail_price": 7746.61, "sales_tax": 1394.39, "total_price": 9141 }
+      ]
+    },
+    {
+      "sr_no": 28,
+      "name": "Neo Varnish",
+      "product_line": "N105-0120",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "0.75 Ltr",  "retail_price": 1023.73, "sales_tax": 184.27, "total_price": 1208 },
+        { "pack_size": "3.00 Ltrs", "retail_price": 3661.02, "sales_tax": 658.98, "total_price": 4320 }
+      ]
+    },
+    {
+      "sr_no": 29,
+      "name": "Neo Timber Varnish - Gloss",
+      "product_line": "N105-0121",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "1 Ltr", "retail_price": 1662.71, "sales_tax": 299.29, "total_price": 1962 }
+      ]
+    },
+    {
+      "sr_no": 30,
+      "name": "Neo Timber Varnish - Matt",
+      "product_line": "N105-0122",
+      "category": "Wood Care",
+      "brand": "Neo",
+      "note": null,
+      "variants": [
+        { "pack_size": "1 Ltr", "retail_price": 2641.53, "sales_tax": 475.47, "total_price": 3117 }
+      ]
+    },
+    {
+      "sr_no": 31,
+      "name": "Zen Texture",
+      "product_line": "N965",
+      "category": "Others",
+      "brand": "Zen",
+      "note": null,
+      "variants": [
+        { "pack_size": "20 Kgs", "retail_price": 5384.75, "sales_tax": 969.25, "total_price": 6354 }
+      ]
+    }
+  ]
+}
