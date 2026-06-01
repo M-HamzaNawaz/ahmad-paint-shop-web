@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { CartProvider } from "@/components/CartContext";
 import { Header } from "@/components/Header";
@@ -32,6 +33,12 @@ export default function RootLayout({
           </main>
           <Footer />
           <MobileCartBar />
+          <Toaster
+            position="top-center"
+            richColors
+            closeButton
+            offset={{ top: "1rem" }}
+          />
         </CartProvider>
       </body>
     </html>

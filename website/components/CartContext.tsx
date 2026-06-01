@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { toast } from "sonner";
 import type { CartItem, ColorShade, Product, Variant } from "@/lib/types";
 
 const STORAGE_KEY = "aps_cart";
@@ -101,6 +102,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           colorHex: color?.hex,
         };
         return [...prev, newItem];
+      });
+      toast.success("Added to cart", {
+        description: color
+          ? `${product.name} · ${color.name} · ${variant.packSize}`
+          : `${product.name} · ${variant.packSize}`,
       });
     },
     [],
