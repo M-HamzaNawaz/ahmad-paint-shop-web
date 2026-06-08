@@ -1,31 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { AdminCategory } from "@/lib/db/adminCategories";
 import { deleteCategory } from "./actions";
 
 export function CategoryListClient({
-  categories,
+  categories: initial,
 }: {
   categories: AdminCategory[];
 }) {
-  const router = useRouter();
-  const [pendingSlug, setPendingSlug] = useState<string | null>(null);
+  // Local state so we can remove the card instantly — no full page refresh.
+  const [categories, setCategories] = useState(initial);
+  const [, startTransition] = useTransition();
 
-  async function handleDelete(slug: string, name: string) {
+  function handleDelete(slug: string, name: string) {
     if (!confirm(`Delete "${name}"? This can't be undone.`)) return;
-    setPendingSlug(slug);
-    const result = await deleteCategory(slug);
-    setPendingSlug(null);
-    if (result.error) {
-      toast.error("Delete failed", { description: result.error });
-      return;
-    }
-    toast.success("Category deleted", { description: name });
-    router.refresh();
+    const removed = categories.find((c) => c.slug === slug);
+    setCategories((prev) => prev.filter((c) => c.slug !== slug));
+    startTransition(async () => {
+      const result = await deleteCategory(slug);
+      if (result.error) {
+        if (removed) {
+          setCategories((prev) => [...prev, removed]);
+        }
+        toast.error("Delete failed", { description: result.error });
+        return;
+      }
+      toast.success("Category deleted", { description: name });
+    });
   }
 
   if (categories.length === 0) {
@@ -44,9 +48,7 @@ export function CategoryListClient({
       {categories.map((c) => (
         <div
           key={c.slug}
-          className={`overflow-hidden rounded-2xl border border-zinc-200 bg-white transition ${
-            pendingSlug === c.slug ? "opacity-50" : ""
-          }`}
+          className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
         >
           <div className={`bg-linear-to-br ${c.gradient} p-5`}>
             <p className="text-lg font-extrabold text-zinc-900">{c.name}</p>
@@ -70,7 +72,7 @@ export function CategoryListClient({
               <button
                 type="button"
                 onClick={() => handleDelete(c.slug, c.name)}
-                disabled={pendingSlug === c.slug || c.productCount > 0}
+                disabled={c.productCount > 0}
                 title={
                   c.productCount > 0
                     ? "Move or delete its products first"

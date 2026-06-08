@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Brand, Category } from "@/lib/types";
 import type { AdminProduct } from "@/lib/db/adminProducts";
@@ -30,18 +29,20 @@ const BRAND_OPTIONS: DropdownOption<BrandFilter>[] = [
 ];
 
 export function ProductListClient({
-  products,
+  products: initial,
   categories,
 }: {
   products: AdminProduct[];
   categories: Category[];
 }) {
-  const router = useRouter();
+  // Keep a local copy so we can update the row optimistically — no need
+  // to refresh the whole page (which is what caused the flicker).
+  const [products, setProducts] = useState(initial);
+  const [, startTransition] = useTransition();
   const [query, setQuery] = useState("");
   const [brand, setBrand] = useState<BrandFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [category, setCategory] = useState<string>("all");
-  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const categoryOptions: DropdownOption<string>[] = [
     { value: "all", label: "All Categories" },
@@ -65,29 +66,41 @@ export function ProductListClient({
     });
   }, [products, query, brand, status, category]);
 
-  async function handleToggleHidden(id: string, current: boolean) {
-    setPendingId(id);
-    const result = await toggleProductField(id, "hidden", !current);
-    setPendingId(null);
-    if (result.error) {
-      toast.error("Failed", { description: result.error });
-      return;
-    }
-    toast.success(current ? "Product is now visible" : "Product hidden");
-    router.refresh();
+  function handleToggleHidden(id: string, current: boolean) {
+    // Optimistic update — the row updates instantly, no flicker.
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, hidden: !current } : p)),
+    );
+    startTransition(async () => {
+      const result = await toggleProductField(id, "hidden", !current);
+      if (result.error) {
+        // Revert if the server actually rejected the change.
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, hidden: current } : p)),
+        );
+        toast.error("Failed", { description: result.error });
+        return;
+      }
+      toast.success(current ? "Product is now visible" : "Product hidden");
+    });
   }
 
-  async function handleDelete(id: string, name: string) {
+  function handleDelete(id: string, name: string) {
     if (!confirm(`Delete "${name}"? This can't be undone.`)) return;
-    setPendingId(id);
-    const result = await deleteProduct(id);
-    setPendingId(null);
-    if (result.error) {
-      toast.error("Delete failed", { description: result.error });
-      return;
-    }
-    toast.success("Product deleted", { description: name });
-    router.refresh();
+    // Snapshot for rollback if the server rejects.
+    const removed = products.find((p) => p.id === id);
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    startTransition(async () => {
+      const result = await deleteProduct(id);
+      if (result.error) {
+        if (removed) {
+          setProducts((prev) => [...prev, removed]);
+        }
+        toast.error("Delete failed", { description: result.error });
+        return;
+      }
+      toast.success("Product deleted", { description: name });
+    });
   }
 
   return (
@@ -153,10 +166,7 @@ export function ProductListClient({
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {filtered.map((p) => (
-                <tr
-                  key={p.id}
-                  className={pendingId === p.id ? "opacity-50" : ""}
-                >
+                <tr key={p.id}>
                   <td className="px-4 py-3">
                     <div className="font-semibold text-zinc-900">{p.name}</div>
                     {p.productLine ? (
@@ -207,16 +217,14 @@ export function ProductListClient({
                       <button
                         type="button"
                         onClick={() => handleToggleHidden(p.id, p.hidden)}
-                        disabled={pendingId === p.id}
-                        className="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-200 disabled:opacity-50"
+                        className="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-200"
                       >
                         {p.hidden ? "Show" : "Hide"}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(p.id, p.name)}
-                        disabled={pendingId === p.id}
-                        className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+                        className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
                       >
                         Delete
                       </button>

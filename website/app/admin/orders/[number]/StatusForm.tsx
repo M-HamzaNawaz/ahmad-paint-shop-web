@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { OrderStatus } from "@/lib/db/adminOrders";
 import { Dropdown, type DropdownOption } from "@/components/Dropdown";
@@ -21,11 +20,11 @@ export function StatusForm({
   orderNumber: string;
   status: OrderStatus;
 }) {
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<OrderStatus>(initial);
 
   function save(next: OrderStatus) {
+    // Optimistic — dropdown shows new value instantly.
     setStatus(next);
     startTransition(async () => {
       const result = await updateOrderStatus(orderNumber, next);
@@ -35,7 +34,6 @@ export function StatusForm({
         return;
       }
       toast.success(`Status updated to ${next}`);
-      router.refresh();
     });
   }
 

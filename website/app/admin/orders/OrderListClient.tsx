@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { AdminOrder, OrderStatus } from "@/lib/db/adminOrders";
 import { Dropdown, type DropdownOption } from "@/components/Dropdown";
@@ -21,11 +20,16 @@ const STATUS_OPTIONS: DropdownOption<StatusFilter>[] = [
   { value: "cancelled", label: "Cancelled" },
 ];
 
-export function OrderListClient({ orders }: { orders: AdminOrder[] }) {
-  const router = useRouter();
+export function OrderListClient({
+  orders: initial,
+}: {
+  orders: AdminOrder[];
+}) {
+  // Local state so deletes update instantly without re-fetching the page.
+  const [orders, setOrders] = useState(initial);
+  const [, startTransition] = useTransition();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
-  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
@@ -38,17 +42,21 @@ export function OrderListClient({ orders }: { orders: AdminOrder[] }) {
     });
   }, [orders, status, query]);
 
-  async function handleDelete(orderNumber: string) {
+  function handleDelete(orderNumber: string) {
     if (!confirm(`Delete order ${orderNumber}? This can't be undone.`)) return;
-    setPendingId(orderNumber);
-    const result = await deleteOrder(orderNumber);
-    setPendingId(null);
-    if (result.error) {
-      toast.error("Delete failed", { description: result.error });
-      return;
-    }
-    toast.success("Order deleted");
-    router.refresh();
+    const removed = orders.find((o) => o.orderNumber === orderNumber);
+    setOrders((prev) => prev.filter((o) => o.orderNumber !== orderNumber));
+    startTransition(async () => {
+      const result = await deleteOrder(orderNumber);
+      if (result.error) {
+        if (removed) {
+          setOrders((prev) => [...prev, removed]);
+        }
+        toast.error("Delete failed", { description: result.error });
+        return;
+      }
+      toast.success("Order deleted");
+    });
   }
 
   return (
@@ -107,10 +115,7 @@ export function OrderListClient({ orders }: { orders: AdminOrder[] }) {
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {filtered.map((o) => (
-                <tr
-                  key={o.orderNumber}
-                  className={pendingId === o.orderNumber ? "opacity-50" : ""}
-                >
+                <tr key={o.orderNumber}>
                   <td className="px-4 py-3 font-mono text-xs font-semibold text-zinc-900">
                     {o.orderNumber}
                   </td>
@@ -145,8 +150,7 @@ export function OrderListClient({ orders }: { orders: AdminOrder[] }) {
                       <button
                         type="button"
                         onClick={() => handleDelete(o.orderNumber)}
-                        disabled={pendingId === o.orderNumber}
-                        className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+                        className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
                       >
                         Delete
                       </button>

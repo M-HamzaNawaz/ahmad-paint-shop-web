@@ -9,10 +9,26 @@ import { createServerClient } from "@supabase/ssr";
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const path = request.nextUrl.pathname;
+  const isLogin = path === "/admin/login";
+  const isAdminArea = path.startsWith("/admin");
+
+  // If Supabase isn't configured or the auth call fails, never take the whole
+  // site down with a 500 (MIDDLEWARE_INVOCATION_FAILED). Fail open for public
+  // routes; only the /admin gate depends on a working session lookup.
+  if (!url || !key) {
+    if (isAdminArea && !isLogin) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/admin/login";
+      return NextResponse.redirect(redirect);
+    }
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -27,29 +43,35 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
-    },
-  );
+    });
 
-  // Touch the session so any pending refresh happens server-side.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    // Touch the session so any pending refresh happens server-side.
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
-  const isLogin = path === "/admin/login";
-  const isAdminArea = path.startsWith("/admin");
+    if (isAdminArea && !isLogin && !user) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/admin/login";
+      return NextResponse.redirect(redirect);
+    }
 
-  if (isAdminArea && !isLogin && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+    if (isLogin && user) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/admin";
+      return NextResponse.redirect(redirect);
+    }
+
+    return response;
+  } catch (error) {
+    console.error("[middleware] session refresh failed:", error);
+    // Auth lookup failed — protect the admin area by bouncing to login,
+    // but let every public route render normally.
+    if (isAdminArea && !isLogin) {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = "/admin/login";
+      return NextResponse.redirect(redirect);
+    }
+    return response;
   }
-
-  if (isLogin && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin";
-    return NextResponse.redirect(url);
-  }
-
-  return response;
 }
