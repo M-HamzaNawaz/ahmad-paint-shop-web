@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/catalog";
-import { SHOP } from "@/lib/shop";
+import { getCategories } from "@/lib/db/categories";
+import { getSettings } from "@/lib/db/settings";
 import { shopWhatsAppUrl } from "@/lib/whatsapp";
 import {
   ArrowRightIcon,
@@ -19,7 +19,11 @@ export const metadata: Metadata = {
     "Ahmad Paint House — your trusted retailer for Kaizen NEO & ZEN paints. Visit us or order on WhatsApp.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [categories, shop] = await Promise.all([
+    getCategories(),
+    getSettings(),
+  ]);
   return (
     <div>
       {/* Header */}
@@ -33,10 +37,10 @@ export default function AboutPage() {
             <span className="font-medium text-zinc-800">About &amp; Contact</span>
           </nav>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">
-            About {SHOP.name}
+            About {shop.name}
           </h1>
           <p className="mt-3 max-w-2xl text-zinc-600">
-            {SHOP.name} is your trusted local retailer for {SHOP.supplier}. We
+            {shop.name} is your trusted local retailer for {shop.supplier}. We
             stock the complete range of Kaizen (NEO &amp; ZEN) and Nippon paints
             — interior and exterior emulsions, enamels, putty, primers and
             wood-care products — for homes, builders and painters.
@@ -70,7 +74,7 @@ export default function AboutPage() {
             What we offer
           </h2>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <Link
                 key={c.slug}
                 href={`/category/${c.slug}`}
@@ -117,7 +121,7 @@ export default function AboutPage() {
                 </span>
                 <div>
                   <p className="font-semibold text-zinc-900">Address</p>
-                  <p className="text-zinc-600">{SHOP.address}</p>
+                  <p className="text-zinc-600">{shop.address}</p>
                 </div>
               </li>
               <li className="flex gap-3">
@@ -126,7 +130,7 @@ export default function AboutPage() {
                 </span>
                 <div>
                   <p className="font-semibold text-zinc-900">Opening hours</p>
-                  <p className="text-zinc-600">{SHOP.hours}</p>
+                  <p className="text-zinc-600">{shop.hours}</p>
                 </div>
               </li>
               <li className="flex gap-3">
@@ -136,12 +140,12 @@ export default function AboutPage() {
                 <div>
                   <p className="font-semibold text-zinc-900">WhatsApp</p>
                   <a
-                    href={shopWhatsAppUrl()}
+                    href={shopWhatsAppUrl(shop)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-zinc-600 hover:text-zinc-900"
                   >
-                    {SHOP.whatsappDisplay}
+                    {shop.whatsappDisplay}
                   </a>
                 </div>
               </li>
@@ -158,7 +162,7 @@ export default function AboutPage() {
               delivery. We are happy to help with your project.
             </p>
             <a
-              href={shopWhatsAppUrl("Hello! I have a question about your paint products.")}
+              href={shopWhatsAppUrl(shop, "Hello! I have a question about your paint products.")}
               target="_blank"
               rel="noopener noreferrer"
               className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-bold text-white transition hover:bg-whatsapp-dark"

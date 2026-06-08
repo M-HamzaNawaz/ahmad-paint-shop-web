@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CATEGORIES } from "@/lib/catalog";
-import { SHOP } from "@/lib/shop";
+import type { Category } from "@/lib/types";
+import type { ShopSettings } from "@/lib/db/settings";
 import { shopWhatsAppUrl } from "@/lib/whatsapp";
 import { useCart } from "./CartContext";
 import { CartIcon, SearchIcon, WhatsAppIcon } from "./Icons";
@@ -32,13 +32,22 @@ function NavLink({
   );
 }
 
-export function Header() {
+export function Header({
+  categories,
+  shop,
+}: {
+  categories: Category[];
+  shop: ShopSettings;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { totalItems, ready } = useCart();
   const [query, setQuery] = useState("");
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
+
+  // Admin pages have their own shell — hide the customer header there.
+  const isAdmin = pathname.startsWith("/admin");
 
   // Slide header out of view when scrolling down past a threshold,
   // bring it back the moment the user scrolls up — same pattern as
@@ -61,6 +70,8 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  if (isAdmin) return null;
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -91,15 +102,15 @@ export function Header() {
       {/* Announcement strip */}
       <div className="bg-zinc-900 text-[11px] text-zinc-300 sm:text-xs">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-5 gap-y-0.5 px-4 py-1.5 text-center">
-          <span>{SHOP.taxNote}</span>
+          <span>{shop.taxNote}</span>
           <a
-            href={shopWhatsAppUrl()}
+            href={shopWhatsAppUrl(shop)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 font-semibold text-white hover:text-whatsapp"
           >
             <WhatsAppIcon className="h-3.5 w-3.5" />
-            Order on WhatsApp: {SHOP.whatsappDisplay}
+            Order on WhatsApp: {shop.whatsappDisplay}
           </a>
         </div>
       </div>
@@ -111,12 +122,12 @@ export function Header() {
             <Link
               href="/"
               className="flex shrink-0 items-center"
-              aria-label={SHOP.name}
+              aria-label={shop.name}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
-                alt={SHOP.name}
+                alt={shop.name}
                 className="h-12 w-auto sm:h-14"
               />
             </Link>
@@ -153,7 +164,7 @@ export function Header() {
             <NavLink href="/products" active={pathname === "/products"}>
               All Products
             </NavLink>
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <NavLink
                 key={c.slug}
                 href={`/category/${c.slug}`}

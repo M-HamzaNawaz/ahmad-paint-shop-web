@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { getCategoryBySlug } from "@/lib/catalog";
 import type { Brand, Product } from "@/lib/types";
 
 const BRAND_COLOR: Record<Brand, { base: string; dark: string }> = {
@@ -100,12 +99,9 @@ export function ProductImage({
     );
   }
 
-  const category = getCategoryBySlug(product.categorySlug);
-  const gradient = category?.gradient ?? "from-zinc-100 to-slate-200";
-
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden bg-linear-to-br ${gradient} ${className}`}
+      className={`relative flex items-center justify-center overflow-hidden bg-linear-to-br from-zinc-100 to-slate-200 ${className}`}
     >
       <PaintBucketArt brand={product.brand} />
       {product.productLine ? (

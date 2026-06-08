@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getAllProducts, getProductsByBrand } from "@/lib/catalog";
+import {
+  countProductsByBrand,
+  getAllProducts,
+  getProductsByBrand,
+} from "@/lib/db/products";
 import { brandInfo, resolveBrand } from "@/lib/brands";
 import { BrandCards } from "@/components/BrandCards";
 import { BrandSwitcher } from "@/components/BrandSwitcher";
@@ -48,7 +52,7 @@ export default async function ProductsPage({
         <div className="reveal mt-6">
           <CatalogBrowser
             key={q}
-            products={getAllProducts()}
+            products={await getAllProducts()}
             initialQuery={q}
             showBrandFilter
           />
@@ -59,7 +63,11 @@ export default async function ProductsPage({
 
   // ----- Brand picker (default landing) -----
   if (!brand) {
-    const total = getAllProducts().length;
+    const [brandCounts, allProducts] = await Promise.all([
+      countProductsByBrand(),
+      getAllProducts(),
+    ]);
+    const total = allProducts.length;
     return (
       <div className="mx-auto max-w-7xl px-4 py-10">
         <nav className="text-sm text-zinc-500">
@@ -80,7 +88,7 @@ export default async function ProductsPage({
         <div className="reveal mt-8">
           <BrandCards
             hrefFor={(b) => `/products?brand=${b.slug}`}
-            countFor={(b) => getProductsByBrand(b.key).length}
+            counts={brandCounts}
           />
         </div>
 
@@ -107,7 +115,7 @@ export default async function ProductsPage({
 
   // ----- Products for the chosen brand -----
   const products =
-    brand === "all" ? getAllProducts() : getProductsByBrand(brand);
+    brand === "all" ? await getAllProducts() : await getProductsByBrand(brand);
   const info = brand === "all" ? null : brandInfo(brand);
 
   return (

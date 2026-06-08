@@ -2,15 +2,22 @@
 // When the customer places an order, their WhatsApp opens with this message
 // pre-filled, addressed to the shop. They just tap Send.
 
-import { SHOP } from "./shop";
 import { formatDateTime, formatPrice } from "./format";
 import type { Order } from "./types";
 
+/** Minimal shop info needed by the WhatsApp helpers. */
+export interface ShopInfo {
+  /** Shop name — shown in the message header. */
+  name: string;
+  /** International format, no '+', no leading 0 — e.g. "923468803287". */
+  whatsapp: string;
+}
+
 /** Build the formatted order message (WhatsApp uses *text* for bold). */
-export function buildOrderMessage(order: Order): string {
+export function buildOrderMessage(order: Order, shop: ShopInfo): string {
   const lines: string[] = [];
 
-  lines.push(`🎨 *New Order — ${SHOP.name}*`);
+  lines.push(`🎨 *New Order — ${shop.name}*`);
   lines.push(`Order #: ${order.orderNumber}`);
   lines.push(`Date: ${formatDateTime(order.createdAt)}`);
   lines.push("");
@@ -50,13 +57,16 @@ export function buildOrderMessage(order: Order): string {
 }
 
 /** Build the wa.me click-to-chat URL with the order message pre-filled. */
-export function buildWhatsAppUrl(order: Order): string {
-  const message = buildOrderMessage(order);
-  return `https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(order: Order, shop: ShopInfo): string {
+  const message = buildOrderMessage(order, shop);
+  return `https://wa.me/${shop.whatsapp}?text=${encodeURIComponent(message)}`;
 }
 
 /** Plain wa.me link to the shop (no message) — used for general contact. */
-export function shopWhatsAppUrl(text?: string): string {
-  const base = `https://wa.me/${SHOP.whatsapp}`;
+export function shopWhatsAppUrl(
+  shop: Pick<ShopInfo, "whatsapp">,
+  text?: string,
+): string {
+  const base = `https://wa.me/${shop.whatsapp}`;
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }

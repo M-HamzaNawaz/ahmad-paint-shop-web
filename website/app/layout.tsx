@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { MobileCartBar } from "@/components/MobileCartBar";
 import { PageTransition } from "@/components/PageTransition";
+import { getCategories } from "@/lib/db/categories";
+import { getSettings } from "@/lib/db/settings";
 
 export const metadata: Metadata = {
   title: {
@@ -20,18 +22,22 @@ export const viewport: Viewport = {
   themeColor: "#ea580c",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const [categories, shop] = await Promise.all([
+    getCategories(),
+    getSettings(),
+  ]);
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-white text-zinc-900">
         <CartProvider>
-          <Header />
+          <Header categories={categories} shop={shop} />
           <main className="flex-1">
             <PageTransition>{children}</PageTransition>
           </main>
-          <Footer />
+          <Footer categories={categories} shop={shop} />
           <MobileCartBar />
           <Toaster
             position="top-center"

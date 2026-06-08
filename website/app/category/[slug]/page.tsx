@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getCategoryBySlug, getCategorySlugs } from "@/lib/db/categories";
 import {
-  CATEGORIES,
   getBrandsInCategory,
-  getCategoryBySlug,
   getProductsByCategory,
   getProductsByCategoryAndBrand,
-} from "@/lib/catalog";
+} from "@/lib/db/products";
 import { brandInfo, resolveBrand } from "@/lib/brands";
+import type { Brand } from "@/lib/types";
 import { BrandCards } from "@/components/BrandCards";
 import { BrandSwitcher } from "@/components/BrandSwitcher";
 import { CatalogBrowser } from "@/components/CatalogBrowser";
 import { ArrowRightIcon, PaintBucketIcon } from "@/components/Icons";
 
-export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ slug: c.slug }));
+export async function generateStaticParams() {
+  const slugs = await getCategorySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -24,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const category = getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug);
   if (!category) return { title: "Category not found" };
   return { title: category.name, description: category.description };
 }
@@ -38,11 +39,13 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
-  const category = getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const allInCategory = getProductsByCategory(slug);
-  const availableBrands = getBrandsInCategory(slug);
+  const [allInCategory, availableBrands] = await Promise.all([
+    getProductsByCategory(slug),
+    getBrandsInCategory(slug),
+  ]);
   const brand = resolveBrand(typeof sp.brand === "string" ? sp.brand : null);
 
   const breadcrumb = (
@@ -75,6 +78,13 @@ export default async function CategoryPage({
 
   // ----- Brand picker for this category -----
   if (!brand) {
+    const brandCounts = allInCategory.reduce<Partial<Record<Brand, number>>>(
+      (acc, p) => {
+        acc[p.brand] = (acc[p.brand] ?? 0) + 1;
+        return acc;
+      },
+      {},
+    );
     return (
       <div className="mx-auto max-w-7xl px-4 py-8">
         {breadcrumb}
@@ -90,9 +100,7 @@ export default async function CategoryPage({
             <BrandCards
               only={availableBrands}
               hrefFor={(b) => `/category/${slug}?brand=${b.slug}`}
-              countFor={(b) =>
-                getProductsByCategoryAndBrand(slug, b.key).length
-              }
+              counts={brandCounts}
             />
           </div>
 
@@ -124,7 +132,7 @@ export default async function CategoryPage({
   const products =
     brand === "all"
       ? allInCategory
-      : getProductsByCategoryAndBrand(slug, brand);
+      : await getProductsByCategoryAndBrand(slug, brand);
   const info = brand === "all" ? null : brandInfo(brand);
 
   return (

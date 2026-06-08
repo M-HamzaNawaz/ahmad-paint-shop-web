@@ -5,7 +5,7 @@ import {
   getAllProducts,
   getProductById,
   getProductsByCategory,
-} from "@/lib/catalog";
+} from "@/lib/db/products";
 import { formatPrice } from "@/lib/format";
 import type { ProductFeature } from "@/lib/types";
 import { AddToCart } from "@/components/AddToCart";
@@ -25,8 +25,9 @@ import {
 
 const FEATURE_ICONS = [SparkleIcon, DropletIcon, ShieldIcon, SunIcon];
 
-export function generateStaticParams() {
-  return getAllProducts().map((p) => ({ id: p.id }));
+export async function generateStaticParams() {
+  const products = await getAllProducts();
+  return products.map((p) => ({ id: p.id }));
 }
 
 export async function generateMetadata({
@@ -35,7 +36,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
   if (!product) return { title: "Product not found" };
   return { title: product.name, description: product.description };
 }
@@ -46,10 +47,10 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
   if (!product) notFound();
 
-  const related = getProductsByCategory(product.categorySlug)
+  const related = (await getProductsByCategory(product.categorySlug))
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
 

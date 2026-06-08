@@ -1,12 +1,12 @@
 import Link from 'next/link';
+import { getCategories } from '@/lib/db/categories';
 import {
-  CATEGORIES,
+  countProductsByBrand,
+  getAllProducts,
   getCategoryProductCount,
   getFeaturedProducts,
-  getAllProducts,
-  getProductsByBrand,
-} from '@/lib/catalog';
-import { SHOP } from '@/lib/shop';
+} from '@/lib/db/products';
+import { getSettings } from '@/lib/db/settings';
 import { shopWhatsAppUrl } from '@/lib/whatsapp';
 import { BrandCards } from '@/components/BrandCards';
 import { HeroSlider } from '@/components/HeroSlider';
@@ -36,13 +36,21 @@ const SWATCHES = [
   '#d6d3d1',
 ];
 
-export default function HomePage() {
-  const featured = getFeaturedProducts();
-  const totalProducts = getAllProducts().length;
-  const totalPacks = getAllProducts().reduce(
-    (sum, p) => sum + p.variants.length,
-    0,
-  );
+export default async function HomePage() {
+  const [categories, shop] = await Promise.all([
+    getCategories(),
+    getSettings(),
+  ]);
+  const [featured, allProducts, brandCounts, categoryCounts] = await Promise.all([
+    getFeaturedProducts(),
+    getAllProducts(),
+    countProductsByBrand(),
+    Promise.all(
+      categories.map(async (c) => [c.slug, await getCategoryProductCount(c.slug)] as const),
+    ).then((entries) => Object.fromEntries(entries) as Record<string, number>),
+  ]);
+  const totalProducts = allProducts.length;
+  const totalPacks = allProducts.reduce((sum, p) => sum + p.variants.length, 0);
 
   return (
     <div>
@@ -55,7 +63,7 @@ export default function HomePage() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-700 shadow-sm">
               <ShieldIcon className="h-4 w-4" />
-              Authorised retailer of {SHOP.supplier}
+              Authorised retailer of {shop.supplier}
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-zinc-900 sm:text-5xl">
               Beautiful walls <span className="text-primary">start here.</span>
@@ -75,6 +83,7 @@ export default function HomePage() {
               </Link>
               <a
                 href={shopWhatsAppUrl(
+                  shop,
                   'Hello! I would like to ask about your paint products.',
                 )}
                 target="_blank"
@@ -86,8 +95,8 @@ export default function HomePage() {
               </a>
             </div>
             <p className="mt-5 text-sm text-zinc-500">
-              {totalProducts} products · {CATEGORIES.length} categories ·{' '}
-              {totalPacks} pack sizes · {SHOP.taxNote}
+              {totalProducts} products · {categories.length} categories ·{' '}
+              {totalPacks} pack sizes · {shop.taxNote}
             </p>
           </div>
 
@@ -151,7 +160,7 @@ export default function HomePage() {
         <div className="mt-8">
           <BrandCards
             hrefFor={(b) => `/products?brand=${b.slug}`}
-            countFor={(b) => getProductsByBrand(b.key).length}
+            counts={brandCounts}
           />
         </div>
       </section>
@@ -163,7 +172,7 @@ export default function HomePage() {
           subtitle="Find the right product for your project"
         />
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <Link
               key={category.slug}
               href={`/category/${category.slug}`}
@@ -172,7 +181,7 @@ export default function HomePage() {
               <div className="flex items-start justify-between">
                 <PaintBucketIcon className="h-8 w-8 text-zinc-700/55" />
                 <span className="rounded-full bg-white/70 px-2.5 py-0.5 text-[11px] font-bold text-zinc-700">
-                  {getCategoryProductCount(category.slug)}
+                  {categoryCounts[category.slug] ?? 0}
                 </span>
               </div>
               <div className="mt-8">
@@ -265,13 +274,13 @@ export default function HomePage() {
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
             <a
-              href={shopWhatsAppUrl('Hello! I would like to place an order.')}
+              href={shopWhatsAppUrl(shop, 'Hello! I would like to place an order.')}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-semibold text-white transition hover:bg-whatsapp-dark"
             >
               <WhatsAppIcon className="h-4 w-4" />
-              {SHOP.whatsappDisplay}
+              {shop.whatsappDisplay}
             </a>
           </div>
         </div>

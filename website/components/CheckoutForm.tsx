@@ -6,7 +6,8 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import { generateOrderNumber, saveOrder } from "@/lib/order";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { SHOP } from "@/lib/shop";
+import { submitOrder } from "@/app/checkout/actions";
+import type { ShopSettings } from "@/lib/db/settings";
 import type { Order } from "@/lib/types";
 import { useCart } from "./CartContext";
 import { ArrowRightIcon, CartIcon, WhatsAppIcon } from "./Icons";
@@ -20,7 +21,7 @@ interface FormState {
 
 type FieldErrors = Partial<Record<"name" | "whatsapp" | "address", string>>;
 
-export function CheckoutForm() {
+export function CheckoutForm({ shop }: { shop: ShopSettings }) {
   const router = useRouter();
   const { items, totalItems, totalPrice, ready, clearCart } = useCart();
 
@@ -109,7 +110,15 @@ export function CheckoutForm() {
     saveOrder(order);
 
     // Open WhatsApp with the pre-filled order (within the click gesture).
-    window.open(buildWhatsAppUrl(order), "_blank");
+    window.open(buildWhatsAppUrl(order, shop), "_blank");
+
+    // Save to DB in the background — non-blocking. If it fails the user
+    // still has their WhatsApp message and local order copy.
+    submitOrder(order).then((result) => {
+      if (result.error) {
+        console.error("Order DB save failed:", result.error);
+      }
+    });
 
     clearCart();
     router.push(`/order/${order.orderNumber}`);
@@ -190,7 +199,7 @@ export function CheckoutForm() {
               When you place the order, WhatsApp opens with your order details
               pre-filled in a message to{" "}
               <span className="font-semibold text-zinc-800">
-                {SHOP.whatsappDisplay}
+                {shop.whatsappDisplay}
               </span>
               . Just tap <span className="font-semibold">Send</span> — the
               message goes from your own WhatsApp number. On a computer, this

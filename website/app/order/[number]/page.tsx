@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { OrderConfirmation } from "@/components/OrderConfirmation";
+import { getSettings } from "@/lib/db/settings";
 
 export const metadata: Metadata = {
   title: "Order Confirmation",
@@ -12,5 +13,6 @@ export default async function OrderPage({
   params: Promise<{ number: string }>;
 }) {
   const { number } = await params;
-  return <OrderConfirmation orderNumber={number} />;
+  const shop = await getSettings();
+  return <OrderConfirmation orderNumber={number} shop={shop} />;
 }

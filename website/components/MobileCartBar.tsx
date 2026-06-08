@@ -14,7 +14,8 @@ export function MobileCartBar() {
   const hiddenOnPage =
     pathname === "/cart" ||
     pathname === "/checkout" ||
-    pathname.startsWith("/order/");
+    pathname.startsWith("/order/") ||
+    pathname.startsWith("/admin");
 
   if (!ready || totalItems === 0 || hiddenOnPage) return null;
 

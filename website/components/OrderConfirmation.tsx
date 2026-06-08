@@ -4,12 +4,18 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatDateTime, formatPrice } from "@/lib/format";
 import { getOrderByNumber } from "@/lib/order";
-import { SHOP } from "@/lib/shop";
+import type { ShopSettings } from "@/lib/db/settings";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { Order } from "@/lib/types";
 import { ArrowRightIcon, CheckCircleIcon, WhatsAppIcon } from "./Icons";
 
-export function OrderConfirmation({ orderNumber }: { orderNumber: string }) {
+export function OrderConfirmation({
+  orderNumber,
+  shop,
+}: {
+  orderNumber: string;
+  shop: ShopSettings;
+}) {
   const [order, setOrder] = useState<Order | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -47,13 +53,13 @@ export function OrderConfirmation({ orderNumber }: { orderNumber: string }) {
         <h2 className="font-bold text-amber-900">One last step</h2>
         <p className="mt-1 text-sm leading-relaxed text-amber-800">
           Your order has opened in WhatsApp as a message to{" "}
-          <span className="font-semibold">{SHOP.whatsappDisplay}</span>. Please
+          <span className="font-semibold">{shop.whatsappDisplay}</span>. Please
           tap <span className="font-semibold">Send</span> in WhatsApp to deliver
           it to the shop. If WhatsApp did not open, use the button below.
         </p>
         {order ? (
           <a
-            href={buildWhatsAppUrl(order)}
+            href={buildWhatsAppUrl(order, shop)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-whatsapp px-6 py-3.5 text-sm font-bold text-white transition hover:bg-whatsapp-dark"

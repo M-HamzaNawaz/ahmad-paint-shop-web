@@ -6,11 +6,13 @@ import { ArrowRightIcon, PaintBucketIcon } from "./Icons";
 /** Grid of large, brand-coloured cards used by the brand picker. */
 export function BrandCards({
   hrefFor,
-  countFor,
+  counts,
   only,
 }: {
   hrefFor: (brand: BrandInfo) => string;
-  countFor: (brand: BrandInfo) => number;
+  /** Pre-computed product count per brand. Parent fetches these so the
+   *  component itself stays synchronous and reusable. */
+  counts: Partial<Record<Brand, number>>;
   /** If given, only show these brands. */
   only?: Brand[];
 }) {
@@ -20,7 +22,7 @@ export function BrandCards({
   return (
     <div className={`grid gap-5 ${cols}`}>
       {shown.map((b) => {
-        const count = countFor(b);
+        const count = counts[b.key] ?? 0;
         return (
           <Link
             key={b.key}
