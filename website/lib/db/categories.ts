@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import type { Category } from "@/lib/types";
 
@@ -34,7 +35,8 @@ function toCategory(row: DbCategoryRow): Category {
 
 const CATEGORY_SELECT = "slug, name, description, gradient, sort_order";
 
-export async function getCategories(): Promise<Category[]> {
+// ─── Uncached implementations ─────────────────────────────────────────
+async function fetchCategories(): Promise<Category[]> {
   const { data, error } = await client()
     .from("categories")
     .select(CATEGORY_SELECT)
@@ -43,7 +45,7 @@ export async function getCategories(): Promise<Category[]> {
   return (data as DbCategoryRow[]).map(toCategory);
 }
 
-export async function getCategoryBySlug(
+async function fetchCategoryBySlug(
   slug: string,
 ): Promise<Category | undefined> {
   const { data, error } = await client()
@@ -55,7 +57,7 @@ export async function getCategoryBySlug(
   return data ? toCategory(data as DbCategoryRow) : undefined;
 }
 
-export async function getCategorySlugs(): Promise<string[]> {
+async function fetchCategorySlugs(): Promise<string[]> {
   const { data, error } = await client()
     .from("categories")
     .select("slug")
@@ -63,3 +65,27 @@ export async function getCategorySlugs(): Promise<string[]> {
   if (error) throw error;
   return (data as { slug: string }[]).map((r) => r.slug);
 }
+
+// ─── Cached exports ───────────────────────────────────────────────────
+// Categories rarely change. 5 min cache + immediate `revalidateTag` in
+// admin actions when categories are added/edited/deleted.
+const CATEGORY_TAG = "categories";
+const TTL = 300;
+
+export const getCategories = unstable_cache(
+  fetchCategories,
+  ["db:categories:all"],
+  { revalidate: TTL, tags: [CATEGORY_TAG] },
+);
+
+export const getCategoryBySlug = unstable_cache(
+  fetchCategoryBySlug,
+  ["db:categories:by-slug"],
+  { revalidate: TTL, tags: [CATEGORY_TAG] },
+);
+
+export const getCategorySlugs = unstable_cache(
+  fetchCategorySlugs,
+  ["db:categories:slugs"],
+  { revalidate: TTL, tags: [CATEGORY_TAG] },
+);

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Settings } from "@/lib/db/adminSettings";
 
@@ -45,6 +45,7 @@ export async function saveSettings(input: Settings): Promise<ActionResult> {
 
     if (error) return { error: error.message };
 
+    updateTag("settings");
     revalidatePath("/", "layout");
     return {};
   } catch (e) {

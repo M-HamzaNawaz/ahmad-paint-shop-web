@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 
 /** Shop config shape used across the customer-facing site. */
@@ -38,7 +39,7 @@ interface DbSettingsRow {
   price_list_date: string;
 }
 
-export async function getSettings(): Promise<ShopSettings> {
+async function fetchSettings(): Promise<ShopSettings> {
   const { data, error } = await client()
     .from("settings")
     .select(
@@ -48,7 +49,9 @@ export async function getSettings(): Promise<ShopSettings> {
     .maybeSingle();
   if (error) throw error;
   if (!data) {
-    throw new Error("Settings row missing — re-run supabase/migrations/0001_initial.sql.");
+    throw new Error(
+      "Settings row missing — re-run supabase/migrations/0001_initial.sql.",
+    );
   }
   const row = data as DbSettingsRow;
   return {
@@ -65,3 +68,12 @@ export async function getSettings(): Promise<ShopSettings> {
     priceListDate: row.price_list_date,
   };
 }
+
+export const SETTINGS_TAG = "settings";
+
+// Settings rarely change. Cache for 5 minutes; admin save invalidates immediately.
+export const getSettings = unstable_cache(
+  fetchSettings,
+  ["db:settings"],
+  { revalidate: 300, tags: [SETTINGS_TAG] },
+);

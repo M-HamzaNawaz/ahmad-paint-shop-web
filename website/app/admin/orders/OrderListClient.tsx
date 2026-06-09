@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AdminOrder, OrderStatus } from "@/lib/db/adminOrders";
 import { Dropdown, type DropdownOption } from "@/components/Dropdown";
 import { SearchIcon } from "@/components/Icons";
@@ -20,16 +21,36 @@ const STATUS_OPTIONS: DropdownOption<StatusFilter>[] = [
   { value: "cancelled", label: "Cancelled" },
 ];
 
+const ORDERS_QUERY_KEY = ["admin", "orders"] as const;
+
 export function OrderListClient({
   orders: initial,
 }: {
   orders: AdminOrder[];
 }) {
-  // Local state so deletes update instantly without re-fetching the page.
-  const [orders, setOrders] = useState(initial);
+  const queryClient = useQueryClient();
+  // React Query refetches every 15s so new customer orders show up
+  // without a page reload. `initialData` skips the first fetch.
+  const { data: orders = initial } = useQuery({
+    queryKey: ORDERS_QUERY_KEY,
+    queryFn: async (): Promise<AdminOrder[]> => {
+      const res = await fetch("/api/admin/orders");
+      if (!res.ok) throw new Error("Failed to load orders");
+      return res.json();
+    },
+    initialData: initial,
+    refetchInterval: 15_000,
+    staleTime: 10_000,
+  });
   const [, startTransition] = useTransition();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
+
+  function setOrders(updater: (prev: AdminOrder[]) => AdminOrder[]) {
+    queryClient.setQueryData<AdminOrder[]>(ORDERS_QUERY_KEY, (prev) =>
+      updater(prev ?? initial),
+    );
+  }
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {

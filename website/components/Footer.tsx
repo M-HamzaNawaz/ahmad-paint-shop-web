@@ -98,7 +98,7 @@ export function Footer({
           <ul className="mt-4 space-y-3.5 text-sm">
             <li className="flex gap-2.5">
               <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <span>{shop.address}</span>
+              <span className="whitespace-pre-line">{shop.address}</span>
             </li>
             <li className="flex gap-2.5">
               <WhatsAppIcon className="mt-0.5 h-4 w-4 shrink-0 text-whatsapp" />

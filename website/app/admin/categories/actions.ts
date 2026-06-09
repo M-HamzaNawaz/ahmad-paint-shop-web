@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export interface CategoryInput {
@@ -112,6 +112,8 @@ export async function saveCategory(
       if (updErr) return { error: updErr.message };
     }
 
+    updateTag("categories");
+    updateTag("products"); // products reference categories
     revalidatePath("/", "layout");
     return { slug: finalSlug };
   } catch (e) {
@@ -139,6 +141,8 @@ export async function deleteCategory(slug: string): Promise<ActionResult> {
       .eq("slug", slug);
     if (error) return { error: error.message };
 
+    updateTag("categories");
+    updateTag("products"); // products reference categories
     revalidatePath("/", "layout");
     return {};
   } catch (e) {

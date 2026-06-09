@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import type { Brand, Product, Variant } from "@/lib/types";
 
@@ -75,7 +76,8 @@ function toProduct(row: DbProductRow): Product {
 
 const PRODUCT_SELECT = "*, variants (*), categories (name)";
 
-export async function getAllProducts(): Promise<Product[]> {
+// ─── Uncached implementations ─────────────────────────────────────────
+async function fetchAllProducts(): Promise<Product[]> {
   const { data, error } = await client()
     .from("products")
     .select(PRODUCT_SELECT)
@@ -85,7 +87,7 @@ export async function getAllProducts(): Promise<Product[]> {
   return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function getProductById(id: string): Promise<Product | undefined> {
+async function fetchProductById(id: string): Promise<Product | undefined> {
   const { data, error } = await client()
     .from("products")
     .select(PRODUCT_SELECT)
@@ -96,7 +98,7 @@ export async function getProductById(id: string): Promise<Product | undefined> {
   return data ? toProduct(data as unknown as DbProductRow) : undefined;
 }
 
-export async function getFeaturedProducts(): Promise<Product[]> {
+async function fetchFeaturedProducts(): Promise<Product[]> {
   const { data, error } = await client()
     .from("products")
     .select(PRODUCT_SELECT)
@@ -107,7 +109,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
   return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function getProductsByCategory(slug: string): Promise<Product[]> {
+async function fetchProductsByCategory(slug: string): Promise<Product[]> {
   const { data, error } = await client()
     .from("products")
     .select(PRODUCT_SELECT)
@@ -118,7 +120,7 @@ export async function getProductsByCategory(slug: string): Promise<Product[]> {
   return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function getProductsByBrand(brand: Brand): Promise<Product[]> {
+async function fetchProductsByBrand(brand: Brand): Promise<Product[]> {
   const { data, error } = await client()
     .from("products")
     .select(PRODUCT_SELECT)
@@ -129,7 +131,7 @@ export async function getProductsByBrand(brand: Brand): Promise<Product[]> {
   return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function getProductsByCategoryAndBrand(
+async function fetchProductsByCategoryAndBrand(
   slug: string,
   brand: Brand,
 ): Promise<Product[]> {
@@ -144,7 +146,7 @@ export async function getProductsByCategoryAndBrand(
   return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function getBrandsInCategory(slug: string): Promise<Brand[]> {
+async function fetchBrandsInCategory(slug: string): Promise<Brand[]> {
   const { data, error } = await client()
     .from("products")
     .select("brand")
@@ -156,7 +158,7 @@ export async function getBrandsInCategory(slug: string): Promise<Brand[]> {
   return Array.from(set);
 }
 
-export async function getCategoryProductCount(slug: string): Promise<number> {
+async function fetchCategoryProductCount(slug: string): Promise<number> {
   const { count, error } = await client()
     .from("products")
     .select("id", { count: "exact", head: true })
@@ -166,7 +168,7 @@ export async function getCategoryProductCount(slug: string): Promise<number> {
   return count ?? 0;
 }
 
-export async function countProductsByBrand(): Promise<Record<Brand, number>> {
+async function fetchCountProductsByBrand(): Promise<Record<Brand, number>> {
   const { data, error } = await client()
     .from("products")
     .select("brand")
@@ -176,3 +178,64 @@ export async function countProductsByBrand(): Promise<Record<Brand, number>> {
   (data as { brand: Brand }[]).forEach((row) => counts[row.brand]++);
   return counts;
 }
+
+// ─── Cached exports ───────────────────────────────────────────────────
+// Products change occasionally. 1 min cache + immediate `revalidateTag`
+// in admin save/delete/toggle actions for instant updates.
+export const PRODUCTS_TAG = "products";
+const TTL = 60;
+const TAGS = { revalidate: TTL, tags: [PRODUCTS_TAG] };
+
+export const getAllProducts = unstable_cache(
+  fetchAllProducts,
+  ["db:products:all"],
+  TAGS,
+);
+
+export const getProductById = unstable_cache(
+  fetchProductById,
+  ["db:products:by-id"],
+  TAGS,
+);
+
+export const getFeaturedProducts = unstable_cache(
+  fetchFeaturedProducts,
+  ["db:products:featured"],
+  TAGS,
+);
+
+export const getProductsByCategory = unstable_cache(
+  fetchProductsByCategory,
+  ["db:products:by-category"],
+  TAGS,
+);
+
+export const getProductsByBrand = unstable_cache(
+  fetchProductsByBrand,
+  ["db:products:by-brand"],
+  TAGS,
+);
+
+export const getProductsByCategoryAndBrand = unstable_cache(
+  fetchProductsByCategoryAndBrand,
+  ["db:products:by-category-and-brand"],
+  TAGS,
+);
+
+export const getBrandsInCategory = unstable_cache(
+  fetchBrandsInCategory,
+  ["db:products:brands-in-category"],
+  TAGS,
+);
+
+export const getCategoryProductCount = unstable_cache(
+  fetchCategoryProductCount,
+  ["db:products:category-count"],
+  TAGS,
+);
+
+export const countProductsByBrand = unstable_cache(
+  fetchCountProductsByBrand,
+  ["db:products:brand-counts"],
+  TAGS,
+);

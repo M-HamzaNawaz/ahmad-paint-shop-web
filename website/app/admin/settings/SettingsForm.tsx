@@ -31,17 +31,33 @@ export function SettingsForm({ initial }: { initial: Settings }) {
   function field<K extends keyof Settings>(
     key: K,
     label: string,
-    options?: { hint?: string; placeholder?: string; type?: string },
+    options?: {
+      hint?: string;
+      placeholder?: string;
+      type?: string;
+      multiline?: boolean;
+      rows?: number;
+    },
   ) {
     return (
       <Field label={label} hint={options?.hint}>
-        <input
-          type={options?.type ?? "text"}
-          value={form[key]}
-          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-          placeholder={options?.placeholder}
-          className={inputClass}
-        />
+        {options?.multiline ? (
+          <textarea
+            value={form[key]}
+            onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+            placeholder={options?.placeholder}
+            rows={options.rows ?? 3}
+            className={`${inputClass} resize-y`}
+          />
+        ) : (
+          <input
+            type={options?.type ?? "text"}
+            value={form[key]}
+            onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+            placeholder={options?.placeholder}
+            className={inputClass}
+          />
+        )}
       </Field>
     );
   }
@@ -79,7 +95,11 @@ export function SettingsForm({ initial }: { initial: Settings }) {
         <h2 className="text-lg font-bold text-zinc-900">Contact &amp; hours</h2>
         <div className="mt-4 space-y-4">
           {field("address", "Address", {
-            placeholder: "Lahore, Pakistan",
+            placeholder:
+              "Branch 1, City\nBranch 2, City (one per line for multiple branches)",
+            hint: "Put each branch on its own line — they'll appear stacked on the customer site.",
+            multiline: true,
+            rows: 3,
           })}
           {field("hours", "Hours", {
             placeholder: "Monday – Saturday, 9:00 AM – 8:00 PM",

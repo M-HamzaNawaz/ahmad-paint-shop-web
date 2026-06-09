@@ -121,7 +121,7 @@ export default async function AboutPage() {
                 </span>
                 <div>
                   <p className="font-semibold text-zinc-900">Address</p>
-                  <p className="text-zinc-600">{shop.address}</p>
+                  <p className="whitespace-pre-line text-zinc-600">{shop.address}</p>
                 </div>
               </li>
               <li className="flex gap-3">

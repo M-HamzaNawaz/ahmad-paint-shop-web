@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { logout } from "@/app/admin/actions";
 import {
   CartIcon,
@@ -28,9 +29,26 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+interface Stats {
+  pendingOrders: number;
+}
+
 export function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // Live pending-orders badge — refetches every 30 seconds.
+  const { data: stats } = useQuery<Stats>({
+    queryKey: ["admin", "stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/stats");
+      if (!res.ok) throw new Error("Failed to load stats");
+      return res.json();
+    },
+    refetchInterval: 30_000,
+    staleTime: 20_000,
+  });
+  const pending = stats?.pendingOrders ?? 0;
 
   return (
     <>
@@ -111,7 +129,12 @@ export function Sidebar({ email }: { email: string }) {
                     }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    {item.href === "/admin/orders" && pending > 0 ? (
+                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1.5 text-[11px] font-bold text-white">
+                        {pending}
+                      </span>
+                    ) : null}
                   </Link>
                 </li>
               );

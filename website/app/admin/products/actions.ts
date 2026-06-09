@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Brand } from "@/lib/types";
 
@@ -133,6 +133,7 @@ export async function saveProduct(input: ProductInput): Promise<ActionResult> {
       .insert(variantRows);
     if (varErr) return { error: varErr.message };
 
+    updateTag("products");
     revalidatePath("/", "layout");
     return { productId };
   } catch (e) {
@@ -145,6 +146,7 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
     const supabase = await requireAuth();
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return { error: error.message };
+    updateTag("products");
     revalidatePath("/", "layout");
     return {};
   } catch (e) {
@@ -164,6 +166,7 @@ export async function toggleProductField(
       .update({ [field]: value })
       .eq("id", id);
     if (error) return { error: error.message };
+    updateTag("products");
     revalidatePath("/", "layout");
     return {};
   } catch (e) {
