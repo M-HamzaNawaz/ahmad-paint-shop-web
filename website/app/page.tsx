@@ -11,30 +11,16 @@ import { shopWhatsAppUrl } from '@/lib/whatsapp';
 import { BrandCards } from '@/components/BrandCards';
 import { HeroSlider } from '@/components/HeroSlider';
 import { ProductCard } from '@/components/ProductCard';
+import { Hero3D } from '@/components/three/Hero3D';
+import { Tilt3D } from '@/components/Tilt3D';
 import {
   ArrowRightIcon,
   CartIcon,
   CheckCircleIcon,
   PaintBucketIcon,
-  PaintRollerIcon,
   ShieldIcon,
   WhatsAppIcon,
 } from '@/components/Icons';
-
-const SWATCHES = [
-  '#fca5a5',
-  '#fdba74',
-  '#fcd34d',
-  '#bef264',
-  '#86efac',
-  '#5eead4',
-  '#7dd3fc',
-  '#93c5fd',
-  '#c4b5fd',
-  '#f0abfc',
-  '#f9a8d4',
-  '#d6d3d1',
-];
 
 export default async function HomePage() {
   const [categories, shop] = await Promise.all([
@@ -100,27 +86,9 @@ export default async function HomePage() {
             </p>
           </div>
 
-          {/* Decorative colour palette */}
+          {/* Interactive 3D paint can (WebGL, lazy-loaded) */}
           <div className="relative">
-            <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-xl backdrop-blur">
-              <div className="flex items-center justify-between">
-                <p className="font-bold text-zinc-900">Colour your space</p>
-                <PaintRollerIcon className="h-6 w-6 text-primary" />
-              </div>
-              <div className="mt-4 grid grid-cols-4 gap-3">
-                {SWATCHES.map((color) => (
-                  <div
-                    key={color}
-                    className="relative aspect-square rounded-xl shadow-inner ring-1 ring-black/5 transition duration-200 ease-out hover:z-10 hover:-translate-y-1.5 hover:scale-105 hover:shadow-lg"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-              <p className="mt-4 text-xs text-zinc-500">
-                Hundreds of shades available in store across the Kaizen and
-                Nippon ranges. Ask us on WhatsApp for shade cards.
-              </p>
-            </div>
+            <Hero3D />
           </div>
         </div>
       </section>
@@ -173,32 +141,35 @@ export default async function HomePage() {
         />
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {categories.map((category) => (
-            <Link
-              key={category.slug}
-              href={`/category/${category.slug}`}
-              className={`group flex flex-col justify-between rounded-2xl bg-linear-to-br ${category.gradient} p-5 transition duration-300 ease-out hover:-translate-y-1 hover:shadow-xl`}
-            >
-              <div className="flex items-start justify-between">
-                <PaintBucketIcon className="h-8 w-8 text-zinc-700/55" />
-                <span className="rounded-full bg-white/70 px-2.5 py-0.5 text-[11px] font-bold text-zinc-700">
-                  {categoryCounts[category.slug] ?? 0}
-                </span>
-              </div>
-              <div className="mt-8">
-                <h3 className="font-bold text-zinc-900">{category.name}</h3>
-                <p className="mt-1 line-clamp-2 text-xs text-zinc-600">
-                  {category.description}
-                </p>
-              </div>
-            </Link>
+            <Tilt3D key={category.slug} className="h-full rounded-2xl">
+              <Link
+                href={`/category/${category.slug}`}
+                className={`group flex h-full flex-col justify-between rounded-2xl bg-linear-to-br ${category.gradient} p-5 shadow-sm transition-shadow duration-300 hover:shadow-xl`}
+              >
+                <div className="flex items-start justify-between">
+                  <PaintBucketIcon className="h-8 w-8 text-zinc-700/55" />
+                  <span className="rounded-full bg-white/70 px-2.5 py-0.5 text-[11px] font-bold text-zinc-700">
+                    {categoryCounts[category.slug] ?? 0}
+                  </span>
+                </div>
+                <div className="mt-8">
+                  <h3 className="font-bold text-zinc-900">{category.name}</h3>
+                  <p className="mt-1 line-clamp-2 text-xs text-zinc-600">
+                    {category.description}
+                  </p>
+                </div>
+              </Link>
+            </Tilt3D>
           ))}
-          <Link
-            href="/products"
-            className="group flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-zinc-300 p-5 text-center transition hover:border-orange-400 hover:bg-orange-50"
-          >
-            <ArrowRightIcon className="h-7 w-7 text-zinc-500 group-hover:text-primary" />
-            <span className="font-bold text-zinc-800">View all products</span>
-          </Link>
+          <Tilt3D className="h-full rounded-2xl">
+            <Link
+              href="/products"
+              className="group flex h-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-zinc-300 p-5 text-center transition hover:border-orange-400 hover:bg-orange-50"
+            >
+              <ArrowRightIcon className="h-7 w-7 text-zinc-500 group-hover:text-primary" />
+              <span className="font-bold text-zinc-800">View all products</span>
+            </Link>
+          </Tilt3D>
         </div>
       </section>
 
@@ -340,7 +311,7 @@ function Step({
   text: string;
 }) {
   return (
-    <div className="relative rounded-2xl border border-zinc-200 bg-white p-6">
+    <Tilt3D max={8} className="relative rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-lg">
       <span className="absolute -top-3 left-6 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
         {number}
       </span>
@@ -349,6 +320,6 @@ function Step({
       </span>
       <h3 className="mt-4 font-bold text-zinc-900">{title}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-zinc-600">{text}</p>
-    </div>
+    </Tilt3D>
   );
 }

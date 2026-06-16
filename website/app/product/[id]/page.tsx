@@ -13,6 +13,7 @@ import { BrandBadge } from "@/components/BrandBadge";
 import { ColorProductOrder } from "@/components/ColorProductOrder";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductImage } from "@/components/ProductImage";
+import { Tilt3D } from "@/components/Tilt3D";
 import {
   DropletIcon,
   PaletteIcon,
@@ -81,10 +82,12 @@ export default async function ProductPage({
       <div className="mt-4 grid gap-8 lg:grid-cols-2">
         {/* Image */}
         <div>
-          <ProductImage
-            product={product}
-            className="aspect-square w-full rounded-2xl border border-zinc-200"
-          />
+          <Tilt3D max={7} lift={12} className="rounded-2xl">
+            <ProductImage
+              product={product}
+              className="aspect-square w-full rounded-2xl border border-zinc-200 shadow-sm"
+            />
+          </Tilt3D>
         </div>
 
         {/* Info */}
@@ -325,7 +328,7 @@ function FeatureCard({
 }) {
   const Icon = FEATURE_ICONS[index % FEATURE_ICONS.length];
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+    <Tilt3D max={8} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg">
       <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-primary">
         <Icon className="h-6 w-6" />
       </span>
@@ -333,7 +336,7 @@ function FeatureCard({
       <p className="mt-1 text-sm leading-relaxed text-zinc-600">
         {feature.description}
       </p>
-    </div>
+    </Tilt3D>
   );
 }
 
